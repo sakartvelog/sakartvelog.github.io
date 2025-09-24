@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Угадай число</title>
+    
+</head>
+<body>
+    <h1>BELOUSOV</h1>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.game-info {
+    margin-bottom: 20px;
+}
+
+.game-info p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.input-section {
+    margin: 20px 0;
+}
+
+#guessInput {
+    padding: 10px;
+    font-size: 16px;
+    width: 100px;
+    margin-right: 10px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#result {
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    min-height: 24px;
+}
+
+.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.history-item {
+    margin: 5px 0;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.history-high {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.history-low {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.history-correct {
+    background-color: #d4edda;
+    color: #155724;
+    font-weight: bold;
+}
+
+#history {
+    margin-top: 20px;
+    text-align: left;
+}
+
+#restartButton {
+    margin-top: 20px;
+    background-color: #28a745;
+}
+
+#restartButton:hover {
+    background-color: #218838;
+}
+    </style>
+    <div class="container">
+        <h1>Угадай число!</h1>
+        <div class="game-info">
+            <p>Я загадал число от 1 до 100. Попробуй угадать!</p>
+            <p>У тебя есть <span id="attempts">10</span> попыток</p>
+        </div>
+        
+        <div class="input-section">
+            <input type="number" id="guessInput" min="1" max="100" placeholder="Введите число">
+            <button id="guessButton">Угадать!</button>
+        </div>
+        
+        <div class="result" id="result"></div>
+        <div class="history" id="history"></div>
+        
+        <button id="restartButton" style="display: none;">Новая игра</button>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        class GuessNumberGame {
+    constructor() {
+        this.minNumber = 1;
+        this.maxNumber = 100;
+        this.maxAttempts = 10;
+        this.secretNumber = 0;
+        this.attemptsLeft = 0;
+        this.gameOver = false;
+        
+        this.initializeElements();
+        this.startNewGame();
+        this.setupEventListeners();
+    }
+    
+    initializeElements() {
+        this.guessInput = document.getElementById('guessInput');
+        this.guessButton = document.getElementById('guessButton');
+        this.resultDiv = document.getElementById('result');
+        this.historyDiv = document.getElementById('history');
+        this.attemptsSpan = document.getElementById('attempts');
+        this.restartButton = document.getElementById('restartButton');
+    }
+    
+    setupEventListeners() {
+        this.guessButton.addEventListener('click', () => this.makeGuess());
+        this.restartButton.addEventListener('click', () => this.startNewGame());
+        
+        this.guessInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.makeGuess();
+            }
+        });
+        
+        this.guessInput.addEventListener('input', () => {
+            this.validateInput();
+        });
+    }
+    
+    startNewGame() {
+        this.secretNumber = this.generateRandomNumber();
+        this.attemptsLeft = this.maxAttempts;
+        this.gameOver = false;
+        
+        this.guessInput.value = '';
+        this.guessInput.disabled = false;
+        this.guessButton.disabled = false;
+        this.resultDiv.textContent = '';
+        this.resultDiv.className = 'result';
+        this.historyDiv.innerHTML = '';
+        this.attemptsSpan.textContent = this.attemptsLeft;
+        this.restartButton.style.display = 'none';
+        
+        this.guessInput.focus();
+    }
+    
+    generateRandomNumber() {
+        return Math.floor(Math.random() * (this.maxNumber - this.minNumber + 1)) + this.minNumber;
+    }
+    
+    validateInput() {
+        const value = parseInt(this.guessInput.value);
+        if (value < this.minNumber || value > this.maxNumber) {
+            this.guessInput.setCustomValidity(`Введите число от ${this.minNumber} до ${this.maxNumber}`);
+        } else {
+            this.guessInput.setCustomValidity('');
+        }
+    }
+    
+    makeGuess() {
+        if (this.gameOver) return;
+        
+        const guess = parseInt(this.guessInput.value);
+        
+        if (isNaN(guess)) {
+            this.showResult('Пожалуйста, введите число!', 'error');
+            return;
+        }
+        
+        if (guess < this.minNumber || guess > this.maxNumber) {
+            this.showResult(`Число должно быть от ${this.minNumber} до ${this.maxNumber}!`, 'error');
+            return;
+        }
+        
+        this.attemptsLeft--;
+        this.attemptsSpan.textContent = this.attemptsLeft;
+        
+        this.addToHistory(guess);
+        
+        if (guess === this.secretNumber) {
+            this.showResult(`🎉 Поздравляю! Вы угадали число ${this.secretNumber}!`, 'success');
+            this.endGame();
+        } else if (this.attemptsLeft === 0) {
+            this.showResult(`💀 Игра окончена! Загаданное число было: ${this.secretNumber}`, 'error');
+            this.endGame();
+        } else if (guess < this.secretNumber) {
+            this.showResult('📈 Загаданное число больше!', 'info');
+        } else {
+            this.showResult('📉 Загаданное число меньше!', 'info');
+        }
+        
+        this.guessInput.value = '';
+        this.guessInput.focus();
+    }
+    
+    showResult(message, type) {
+        this.resultDiv.textContent = message;
+        this.resultDiv.className = `result ${type}`;
+    }
+    
+    addToHistory(guess) {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        
+        if (guess === this.secretNumber) {
+            historyItem.classList.add('history-correct');
+            historyItem.textContent = `✔ ${guess} - Правильно!`;
+        } else if (guess < this.secretNumber) {
+            historyItem.classList.add('history-low');
+            historyItem.textContent = `⬆ ${guess} - Мало`;
+        } else {
+            historyItem.classList.add('history-high');
+            historyItem.textContent = `⬇ ${guess} - Много`;
+        }
+        
+        this.historyDiv.appendChild(historyItem);
+        this.historyDiv.scrollTop = this.historyDiv.scrollHeight;
+    }
+    
+    endGame() {
+        this.gameOver = true;
+        this.guessInput.disabled = true;
+        this.guessButton.disabled = true;
+        this.restartButton.style.display = 'block';
+    }
+}
+
+// Запуск игры при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    new GuessNumberGame();
+});
+    </script>
+</body>
+</html>

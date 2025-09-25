@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Belousov</title>
+  </head>
+  <body>
+    <p id="hello">Привет!</p>
+    <button onclick="changeText()">Press me</button>
+    <button id="button2">Press me 2</button>
+    
+
+
+    <script>
+      document.getElementById(`button2`).addEventListener(`click`, changeText)
+      function changeText() {
+        document.getElementById(`hello`).textContent = `Как дела?`;
+      }
+    </script>
+  </body>
+</html>

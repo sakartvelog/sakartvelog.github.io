@@ -1,17 +1,592 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Портфолио - Белоусов Георгий, ИС-3.2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #1a252f;
+            --success: #2ecc71;
+            --warning: #f39c12;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Шапка */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            padding: 60px 0 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.1;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            margin: 0 auto 20px;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: white;
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .course-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .info-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Основной контент */
+        main {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--primary);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--secondary), var(--accent));
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+
+        /* Карточки работ */
+        .works-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .work-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .work-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .work-icon {
+            height: 150px;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 50px;
+        }
+
+        .work-content {
+            padding: 25px;
+        }
+
+        .work-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .work-desc {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .work-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tech-tag {
+            background: var(--light);
+            color: var(--primary);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .work-link {
+            display: inline-block;
+            background: linear-gradient(to right, var(--secondary), var(--accent));
+            color: white;
+            text-decoration: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 100%;
+        }
+
+        .work-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Статистика */
+        .stats-section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 60px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* Футер */
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            opacity: 0.7;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .works-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .course-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                padding: 0 15px;
+            }
+            
+            .work-card {
+                margin: 0 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .work-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .work-card:nth-child(1) { animation-delay: 0.1s; }
+        .work-card:nth-child(2) { animation-delay: 0.2s; }
+        .work-card:nth-child(3) { animation-delay: 0.3s; }
+        .work-card:nth-child(4) { animation-delay: 0.4s; }
+        .work-card:nth-child(5) { animation-delay: 0.5s; }
+        .work-card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
 </head>
 <body>
-    <h1>Сайт Белоусова Георгия, ИС-3.2</h1>
-    <a href="guessthenumber.html">GuessNumberGame</a>
-    <a href="first.html">First script</a>
-    <a href="1.html">Работа 1</a>
-    <a href="2.html">Работа 2</a>
-    <a href="dom/index.html">Work with DOM</a>
-    <a href="guess characters/index.html">Экзаминационная работа "Угадай персонажа"</a>
+    <!-- Шапка -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="avatar">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h1>Белоусов Георгий</h1>
+                <p class="subtitle">Студент группы ИС-3.2</p>
+                <p class="subtitle">Разработка программного обеспечения</p>
+                
+                <div class="course-info">
+                    <div class="info-badge">
+                        <i class="fas fa-graduation-cap"></i> Прикладная информатика
+                    </div>
+                    <div class="info-badge">
+                        <i class="fas fa-university"></i> 3 курс
+                    </div>
+                    <div class="info-badge">
+                        <i class="fas fa-laptop-code"></i> Веб-разработка
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="container">
+        <h2 class="section-title">Мои учебные работы</h2>
+        
+        <div class="works-grid">
+            <!-- Guess Number Game -->
+            <div class="work-card">
+                <div class="work-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <div class="work-content">
+                    <h3 class="work-title">Guess Number Game</h3>
+                    <p class="work-desc">Интерактивная игра на угадывание чисел с системой подсказок и подсчетом попыток</p>
+                    <div class="work-tech">
+                        <span class="tech-tag">JavaScript</span>
+                        <span class="tech-tag">HTML5</span>
+                        <span class="tech-tag">CSS3</span>
+                    </div>
+                    <a href="guessthenumber.html" class="work-link">Открыть проект <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+
+            <!-- First Script -->
+            <div class="work-card">
+                <div class="work-icon">
+                    <i class="fas fa-file-code"></i>
+                </div>
+                <div class="work-content">
+                    <h3 class="work-title">First Script</h3>
+                    <p class="work-desc">Моя первая работа с JavaScript: основы программирования и взаимодействие с DOM</p>
+                    <div class="work-tech">
+                        <span class="tech-tag">JavaScript</span>
+                        <span class="tech-tag">Начальный уровень</span>
+                    </div>
+                    <a href="first.html" class="work-link">Открыть проект <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+
+            <!-- Работа 1 -->
+            <div class="work-card">
+                <div class="work-icon">
+                    <i class="fas fa-laptop"></i>
+                </div>
+                <div class="work-content">
+                    <h3 class="work-title">Работа 1</h3>
+                    <p class="work-desc">Базовая практическая работа по веб-разработке и верстке</p>
+                    <div class="work-tech">
+                        <span class="tech-tag">HTML5</span>
+                        <span class="tech-tag">CSS3</span>
+                    </div>
+                    <a href="1.html" class="work-link">Открыть проект <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+
+            <!-- Работа 2 -->
+            <div class="work-card">
+                <div class="work-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="work-content">
+                    <h3 class="work-title">Работа 2</h3>
+                    <p class="work-desc">Продвинутая работа с формами, стилями и скриптами</p>
+                    <div class="work-tech">
+                        <span class="tech-tag">Формы</span>
+                        <span class="tech-tag">Валидация</span>
+                        <span class="tech-tag">JavaScript</span>
+                    </div>
+                    <a href="2.html" class="work-link">Открыть проект <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+
+            <!-- Work with DOM -->
+            <div class="work-card">
+                <div class="work-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <div class="work-content">
+                    <h3 class="work-title">Work with DOM</h3>
+                    <p class="work-desc">Работа с Document Object Model: динамическое изменение контента страницы</p>
+                    <div class="work-tech">
+                        <span class="tech-tag">DOM API</span>
+                        <span class="tech-tag">JavaScript</span>
+                        <span class="tech-tag">Динамика</span>
+                    </div>
+                    <a href="dom/index.html" class="work-link">Открыть проект <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+
+            <!-- Экзаменационная работа -->
+            <div class="work-card">
+                <div class="work-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="work-content">
+                    <h3 class="work-title">Угадай персонажа</h3>
+                    <p class="work-desc">Экзаменационная работа: интерактивная игра на распознавание персонажей</p>
+                    <div class="work-tech">
+                        <span class="tech-tag">Игра</span>
+                        <span class="tech-tag">JavaScript</span>
+                        <span class="tech-tag">Анимации</span>
+                        <span class="tech-tag">Экзамен</span>
+                    </div>
+                    <a href="guess characters/index.html" class="work-link">Открыть проект <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats-section">
+            <h2 class="section-title">Статистика проектов</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">Учебных работ</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">4+</div>
+                    <div class="stat-label">Технологий освоено</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Завершенные проекты</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">3 курс</div>
+                    <div class="stat-label">Учебный прогресс</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Футер -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <h3>Белоусов Георгий</h3>
+                <p>Студент группы ИС-3.2 | Портфолио учебных работ</p>
+                
+                <div class="social-links">
+                    <a href="#" class="social-link" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#" class="social-link" title="VK">
+                        <i class="fab fa-vk"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Telegram">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Email">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+                
+                <p class="copyright">
+                    © 2024 Портфолио учебных работ. Все права защищены.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Небольшой скрипт для анимаций
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления карточек при скролле
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Наблюдаем за карточками
+            document.querySelectorAll('.work-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(card);
+            });
+
+            // Добавляем hover-эффект для ссылок
+            const workLinks = document.querySelectorAll('.work-link');
+            workLinks.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                });
+                
+                link.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // Обновление года в футере
+            const yearSpan = document.querySelector('.copyright');
+            if (yearSpan) {
+                yearSpan.innerHTML = yearSpan.innerHTML.replace('2024', new Date().getFullYear());
+            }
+        });
+    </script>
 </body>
 </html>

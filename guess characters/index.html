@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Угадай персонажа - Dead by Daylight</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #8b0000;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #ff0000;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .character-image {
+            flex: 1;
+            min-width: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.3);
+            position: relative;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .character-image img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            display: none;
+        }
+        
+        .character-image.revealed img {
+            display: block;
+        }
+        
+        .character-placeholder {
+            font-size: 1.5rem;
+            color: #555;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .game-controls {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(30, 30, 46, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .hint-section {
+            margin-bottom: 20px;
+        }
+        
+        .hint {
+            background: rgba(50, 50, 70, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #8b0000;
+        }
+        
+        .hint h3 {
+            color: #ff6b6b;
+            margin-bottom: 5px;
+        }
+        
+        .guess-section {
+            margin-bottom: 20px;
+        }
+        
+        .guess-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        button {
+            padding: 12px 25px;
+            background: #8b0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #a00000;
+        }
+        
+        .result {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .correct {
+            background: rgba(0, 128, 0, 0.3);
+            border: 1px solid #00aa00;
+            display: block;
+        }
+        
+        .incorrect {
+            background: rgba(139, 0, 0, 0.3);
+            border: 1px solid #ff0000;
+            display: block;
+        }
+        
+        .score-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #444;
+        }
+        
+        .score {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .character-card {
+            background: rgba(40, 40, 60, 0.7);
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .character-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .character-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        
+        .character-card p {
+            padding: 10px 5px;
+            font-size: 0.9rem;
+        }
+        
+        .character-card.guessed {
+            opacity: 0.6;
+        }
+        
+        .difficulty {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .difficulty-btn {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .difficulty-btn.active {
+            background: #ff4500;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .character-image, .game-controls {
+                min-width: 100%;
+            }
+        }
+        .volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
+    backdrop-filter: blur(5px);
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Кнопка включения/выключения звука */
+.volume-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.volume-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ползунок громкости */
+.volume-slider {
+    width: 100px;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(to right, #4a90e2 30%, #ddd 30%);
+    border-radius: 3px;
+    outline: none;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.volume-slider:hover {
+    opacity: 1;
+}
+
+/* Стили для бегунка в разных браузерах */
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #4a90e2;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #4a90e2;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Значение громкости */
+.volume-value {
+    min-width: 40px;
+    text-align: center;
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .volume-control {
+        bottom: 10px;
+        right: 10px;
+        padding: 8px;
+    }
+    
+    .volume-slider {
+        width: 80px;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Угадай персонажа Dead by Daylight</h1>
+            <p class="subtitle">Используй подсказки, чтобы угадать персонажа из Dead by Daylight</p>
+        </header>
+        
+        <div class="game-container">
+            <div class="game-area">
+                <div class="character-image" id="characterImage">
+                    <div class="character-placeholder">Персонаж появится после правильного ответа</div>
+                    <img src="" alt="Персонаж Dead by Daylight">
+                </div>
+                
+                <div class="game-controls">
+                    
+                    
+                    <div class="hint-section">
+                        <div class="hint">
+                            <h3>Подсказка 1</h3>
+                            <p id="hint1">Загрузка...</p>
+                        </div>
+                        <div class="hint">
+                            <h3>Подсказка 2</h3>
+                            <p id="hint2">Загрузка...</p>
+                        </div>
+                        <div class="hint">
+                            <h3>Подсказка 3</h3>
+                            <p id="hint3">Загрузка...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="guess-section">
+                        <div class="guess-input">
+                            <input type="text" id="guessInput" placeholder="Введите имя персонажа...">
+                            <button id="guessButton">Угадать</button>
+                        </div>
+                        <div class="result" id="result"></div>
+                    </div>
+                    
+                    <div class="score-section">
+                        <div class="score">Угадано: <span id="correctCount">0</span></div>
+                        <div class="score">Попытки: <span id="attemptCount">0</span></div>
+                        <button id="nextButton">Следующий персонаж</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="characters-grid" id="charactersGrid">
+                <!-- Сетка персонажей будет заполнена через JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <audio id="backgroundMusic" loop>
+    <!-- Вы замените sounds/background.mp3 на свой файл -->
+    <source src="sounds/Voicy_The Shape Chase Music.mp3" type="audio/mpeg">
+    Ваш браузер не поддерживает аудио.
+</audio>
+
+<audio id="correctSound">
+    <!-- Вы замените sounds/correct.mp3 на свой файл -->
+    <source src="sounds/jg-032316-sfx-elearning-correct-answer-sound-1.mp3" type="audio/mpeg">
+    Ваш браузер не поддерживает аудио.
+</audio>
+
+<audio id="wrongSound">
+    <!-- Вы замените sounds/wrong.mp3 на свой файл -->
+    <source src="sounds/fail-wha-wha-version.mp3" type="audio/mpeg">
+    Ваш браузер не поддерживает аудио.
+</audio>
+<button onclick="toggleBackgroundMusic()">Вкл/Выкл музыку</button>
+
+<!-- Контейнер для регулятора громкости -->
+<div class="volume-control">
+    <!-- Кнопка с иконкой звука -->
+    <button id="volumeToggle" class="volume-btn">
+        <span class="volume-icon">🔊</span>
+    </button>
+    
+    <!-- Сам ползунок -->
+    <input type="range" 
+           id="volumeSlider" 
+           class="volume-slider" 
+           min="0" 
+           max="1" 
+           step="0.1" 
+           value="0.3">
+    
+    <!-- Текущее значение громкости (опционально) -->
+    <span id="volumeValue" class="volume-value">30%</span>
+</div>
+
+    <script>
+        // База данных персонажей Dead by Daylight (убийцы и выжившие)
+        const characters = [
+            // Убийцы
+            {
+                name: "Охотник",
+                image: "https://avatars.mds.yandex.net/i?id=8a4a87fbd452f35d32bc2a90c4c4d0f9_l-4752030-images-thumbs&n=13",
+                hints: [
+                    "Этот убийца известен своей способностью устанавливать медвежьи капканы.",
+                    "Он один из оригинальных убийц в игре.",
+                    "Его настоящее имя - Эван Макмиллан."
+                ],
+                role: "killer"
+            },
+            {
+                name: "Деревенщина",
+                image: "https://wallpapers.com/images/hd/dead-by-daylight-killers-1920-x-1080-wallpaper-7vsknlcqri1akrf9.jpg",
+                hints: [
+                    "Этот убийца использует бензопилу для быстрых перемещений по карте.",
+                    "У него есть физический недостаток - одна нога короче другой.",
+                    "Его зовут Макс Томпсон-младший."
+                ],
+                role: "killer"
+            },
+            {
+                name: "Медсестра",
+                image: "https://avatars.mds.yandex.net/i?id=74c80fb518e48cdc2d42f3df3f174969b472a77d-4809613-images-thumbs&n=13",
+                hints: [
+                    "Эта убийца может телепортироваться на короткие расстояния.",
+                    "Она бывшая медсестра из психиатрической больницы.",
+                    "Её зовут Салли Смитсон."
+                ],
+                role: "killer"
+            },
+            {
+                name: "Охотница",
+                image: "https://avatars.mds.yandex.net/i?id=bbf43d745df1e3a1cc4dfa702ca3040306fcf1e8-12493262-images-thumbs&n=13",
+                hints: [
+                    "Эта убийца бросает в выживших метательные топоры.",
+                    "Она выросла в лесах России.",
+                    "Её зовут Анна."
+                ],
+                role: "killer"
+            },
+            {
+                name: "Дух",
+                image: "https://cs10.pikabu.ru/post_img/big/2019/01/03/7/1546513511137034528.jpg",
+                hints: [
+                    "Эта убийца может становиться невидимой и быстро перемещаться.",
+                    "Она была студенткой университета, когда погибла.",
+                    "Её настоящее имя - Рин Ямаока."
+                ],
+                role: "killer"
+            },
+            {
+                name: "Трюкач",
+                image: "https://64.media.tumblr.com/9058fc0e858d49dc9b45014f2e204db6/77d7f0daef885973-d6/s2048x3072/dcace59a95e2750e6a71df7b4c9ba9af24152a23.png",
+                hints: [
+                    "Этот убийца бросает в выживших лезвия.",
+                    "Он был знаменитым K-Pop исполнителем.",
+                    "Его зовут Джи-Хун Ким."
+                ],
+                role: "killer"
+            },
+            {
+                name: "Они",
+                image: "https://i.ytimg.com/vi/i5RGvgy1DeA/maxresdefault.jpg",
+                hints: [
+                    "Этот убийца собирает кровь раненых выживших для усиления.",
+                    "Он самурай с огромной катаной.",
+                    "Его зовут Кадзаносуке Ямаока."
+                ],
+                role: "killer"
+            },
+            {
+                name: "Немезис",
+                image: "https://avatars.mds.yandex.net/i?id=97b5ee871fc07f793d300b99b06b4d57b9a920a2-5221472-images-thumbs&n=13",
+                hints: [
+                    "Этот убийца преследует выживших с помощью своего щупальца.",
+                    "Он происходит из серии игр Resident Evil.",
+                    "Его зовут Немезис."
+                ],
+                role: "killer"
+            },
+            {
+                name: "Призрак",
+                image: "https://cubiq.ru/wp-content/uploads/2017/12/thumb-1920-7213961.jpg",
+                hints: [
+                    "Этот убийца может становиться невидимым в режиме призрака.",
+                    "Он был серийным убийцей, известным как 'Фантом'.",
+                    "Его настоящее имя - Филипп Оджомо."
+                ],
+                role: "killer"
+            },
+            {
+                name: "Легион",
+                image: "https://wallpaper.forfun.com/fetch/99/996774a388125ace94d5f61383cd0b90.jpeg",
+                hints: [
+                    "Эта группа убийц состоит из четырех подростков.",
+                    "Они используют способность 'Бешенство', чтобы быстро атаковать.",
+                    "Их имена: Фрэнк, Джули, Сьюзи и Джоуи."
+                ],
+                role: "killer"
+            },
+            {
+                name: "Демогоргон",
+                image: "https://images.steamusercontent.com/ugc/772863038440389459/3511BBF5B444D8D51F16EAFB3EE717062FF335CD/",
+                hints: [
+                    "Этот убийца происходит из сериала 'Очень странные дела'.",
+                    "Он может устанавливать порталы для быстрого перемещения.",
+                    "Его зовут Демогоргон."
+                ],
+                role: "killer"
+            },
+            {
+                name: "Майкл Майерс",
+                image: "https://i.ytimg.com/vi/kTS6Y_JTrkc/maxresdefault.jpg",
+                hints: [
+                    "Стелс маньяк",
+                    "Этот персонаж - чисто воплощение зла",
+                    "Из серии фильмов Хеллоуин"
+                ],
+                role: "killer"
+            },
+             {
+                name: "Спрингтрап",
+                image: "https://i.ytimg.com/vi/RwezsAGiI-Y/maxresdefault.jpg",
+                hints: [
+                    "Полу-человек, полу-робот",
+                    "Дополнительное оружие - топор",
+                    "Персонаж из культовой серии игр FNAF"
+                ],
+                role: "killer"
+            },
+             {
+                name: "Гоуст Фейс",
+                image: "https://i.pinimg.com/originals/64/6b/53/646b5321b317eac1d8d0139c6d6cc7fa.jpg",
+                hints: [
+                    "ЧУВААААААК",
+                    "Основная выделяющаяся черта - культовая маска",
+                    "Этот персонаж из серии фильмов Крик"
+                ],
+                role: "killer"
+            },
+             {
+                name: "Вескер",
+                image: "https://i.ytimg.com/vi/UyRjhyGk3cc/maxresdefault.jpg",
+                hints: [
+                    "Этот персонаж был сумасшедшим ученым",
+                    "Выделительная черта - тёмные очки и плащ",
+                    "Этот персонаж из серии игр Resident Evil"
+                ],
+                role: "killer"
+            },
+             {
+                name: "Гуль",
+                image: "https://i.ytimg.com/vi/NmpLnj0Hj5E/maxresdefault.jpg",
+                hints: [
+                    "Персонаж из аниме",
+                    "Основное оружие - кагунэ",
+                    "Из серии аниме токийский гуль"
+                ],
+                role: "killer"
+            },
+             {
+                name: "Фредди Крюгер",
+                image: "https://resizer.mail.ru/p/ddc37c07-7b1a-55d7-adff-f86e6d50d628/AQAC4-u9RsE53Lefv4e1GFjcUS3qFKTEcBmyOM3cszRXgq9MhwwBG8vkqpGSTVQKt9Fb8TNAeFak4Z7T77DvZrSRX84.jpg",
+                hints: [
+                    "Атрибуты - вязаный зелено-красный свитер",
+                    "Взаимодействует через сон",
+                    "Из серии фильмов Кошмар на улице Вязов"
+                ],
+                role: "killer"
+            },
+             {
+                name: "Кожаное яйцо",
+                image: "https://preview.redd.it/dbd-killers-whats-your-opinion-on-the-cannibal-bubba-v0-9vlz6yxwieze1.jpeg?auto=webp&s=2c22f84cdc9522377101abedadd5b172dbd97d28",
+                hints: [
+                    "Оружие - бензопила",
+                    "Он даун отсталый",
+                    "Он из Техасской мазни"
+                ],
+                role: "killer"
+            },
+             {
+                name: "Свинка",
+                image: "https://images.steamusercontent.com/ugc/2042978435314721605/914CF8DB45EC47F1B265670163734B66EB17FECB/",
+                hints: [
+                    "Может ставить капканы на голову",
+                    "У этого человека маска свиньи",
+                    "Из культовой серии фильмов Пила"
+                ],
+                role: "killer"
+            },
+             {
+                name: "Ксеноморф",
+                image: "https://monsterface.ru/wp-content/uploads/2019/06/alien-850x478.jpg",
+                hints: [
+                    "Персонаж - инопланетянин",
+                    "Основное оружие - огромный хвост-крюк",
+                    "Из серии фильмов чужой"
+                ],
+                role: "killer"
+            },
+             {
+                name: "Чаки",
+                image: "https://deadbydaylight.com/static/42fe9477c529d4e03acde37b0d1c1e21/12a16/CM_1660_DBD_Character_Renders_Killer_23c9551fea.png",
+                hints: [
+                    "Особенность - очень маленький рост",
+                    "Из фильма Детские игры",
+                    "Детская игрушка"
+                ],
+                role: "killer"
+            },
+             {
+                name: "Онрё",
+                image: "https://avatars.mds.yandex.net/get-ott/1534341/2a0000017e7c540b19928e6390520c81df3c/orig",
+                hints: [
+                    "Была утоплена в колодце",
+                    "Появляется через телевизор",
+                    "Из серии фильмов Звонок"
+                ],
+                role: "killer"
+            },
+             {
+                name: "Граф Дракула",
+                image: "https://i.ytimg.com/vi/PKIa14E_Om0/maxresdefault.jpg",
+                hints: [
+                    "Персонаж может превращаться в летучую мышь",
+                    "",
+                    ""
+                ],
+                role: "killer"
+            },
+
+            {
+                name: "Пирамидоголовый",
+                image: "https://i.ytimg.com/vi/Sids3j1jkM4/maxresdefault.jpg",
+                hints: [
+                    "Этот убийца происходит из серии игр Silent Hill.",
+                    "Он носит на голове металлическую пирамиду.",
+                    "Его зовут Пирамидоголовый."
+                ],
+                role: "killer"
+            },
+            
+        ];
+
+        // Элементы DOM
+        const characterImage = document.getElementById('characterImage');
+        const hint1 = document.getElementById('hint1');
+        const hint2 = document.getElementById('hint2');
+        const hint3 = document.getElementById('hint3');
+        const guessInput = document.getElementById('guessInput');
+        const guessButton = document.getElementById('guessButton');
+        const result = document.getElementById('result');
+        const correctCount = document.getElementById('correctCount');
+        const attemptCount = document.getElementById('attemptCount');
+        const nextButton = document.getElementById('nextButton');
+        const charactersGrid = document.getElementById('charactersGrid');
+        const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+
+        // Переменные игры
+        let currentCharacter = null;
+        let guessedCharacters = [];
+        let correctGuesses = 0;
+        let attempts = 0;
+        let hintsUsed = 0;
+        let currentDifficulty = 'easy';
+
+        // Инициализация игры
+        function initGame() {
+            // Заполняем сетку персонажей
+            charactersGrid.innerHTML = '';
+            characters.forEach(character => {
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.innerHTML = `
+                    <img src="${character.image}" alt="${character.name}">
+                    <p>${character.name}</p>
+                `;
+                charactersGrid.appendChild(card);
+            });
+            
+            // Выбираем случайного персонажа
+            selectRandomCharacter();
+            
+            // Обновляем счетчики
+            updateCounters();
+            
+            
+        }
+
+        // Выбор случайного персонажа
+        function selectRandomCharacter() {
+            // Фильтруем персонажей по сложности
+            let availableCharacters = [];
+            
+            
+            
+            // Фильтруем персонажей, которых еще не угадали
+            availableCharacters = availableCharacters.filter(char => !guessedCharacters.includes(char.name));
+            
+            // Если все персонажи угаданы, сбрасываем список
+            if (availableCharacters.length === 0) {
+                guessedCharacters = [];
+                if (currentDifficulty === 'easy') {
+                    availableCharacters = characters.filter(char => char.role === 'killer');
+                } else if (currentDifficulty === 'medium') {
+                    availableCharacters = characters.filter(char => char.role === 'survivor');
+                } else {
+                    availableCharacters = [...characters];
+                }
+            }
+            
+            // Выбираем случайного персонажа
+            const randomIndex = Math.floor(Math.random() * availableCharacters.length);
+            currentCharacter = availableCharacters[randomIndex];
+            
+            // Сбрасываем состояние игры
+            characterImage.classList.remove('revealed');
+            hint1.textContent = currentCharacter.hints[0];
+            hint2.textContent = '???';
+            hint3.textContent = '???';
+            guessInput.value = '';
+            result.className = 'result';
+            result.style.display = 'none';
+            hintsUsed = 0;
+            
+            // Обновляем изображение персонажа (но не показываем его)
+            const img = characterImage.querySelector('img');
+            img.src = currentCharacter.image;
+            img.style.display = 'none';
+            
+            // Показываем placeholder
+            const placeholder = characterImage.querySelector('.character-placeholder');
+            placeholder.style.display = 'block';
+            
+            // Разблокируем поле ввода
+            guessInput.disabled = false;
+            guessButton.disabled = false;
+        }
+
+        // Проверка ответа
+        function checkGuess() {
+            const guess = guessInput.value.trim().toLowerCase();
+            const correctName = currentCharacter.name.toLowerCase();
+            
+            if (guess === '') return;
+            
+            attempts++;
+            updateCounters();
+            
+            if (guess === correctName) {
+                // Правильный ответ
+                result.textContent = 'Правильно! Это ' + currentCharacter.name;
+                result.className = 'result correct';
+                result.style.display = 'block';
+                playCorrectSound();
+                
+                // Показываем изображение персонажа
+                characterImage.classList.add('revealed');
+                const img = characterImage.querySelector('img');
+                img.style.display = 'block';
+                
+                // Скрываем placeholder
+                const placeholder = characterImage.querySelector('.character-placeholder');
+                placeholder.style.display = 'none';
+                
+                // Добавляем персонажа в список угаданных
+                if (!guessedCharacters.includes(currentCharacter.name)) {
+                    guessedCharacters.push(currentCharacter.name);
+                    correctGuesses++;
+                    updateCounters();
+                    
+                    // Обновляем карточку персонажа
+                    updateCharacterCard(currentCharacter.name, true);
+                }
+                
+                // Блокируем поле ввода
+                guessInput.disabled = true;
+                guessButton.disabled = true;
+            } else {
+                // Неправильный ответ
+                result.textContent = 'Неправильно! Попробуйте еще раз.';
+                result.className = 'result incorrect';
+                result.style.display = 'block';
+                playWrongSound();
+
+                
+                // Показываем следующую подсказку
+                hintsUsed++;
+                if (hintsUsed === 1) {
+                    hint2.textContent = currentCharacter.hints[1];
+                } else if (hintsUsed === 2) {
+                    hint3.textContent = currentCharacter.hints[2];
+                }
+            }
+        }
+
+        // Обновление счетчиков
+        function updateCounters() {
+            correctCount.textContent = correctGuesses;
+            attemptCount.textContent = attempts;
+        }
+
+        // Обновление карточки персонажа
+        function updateCharacterCard(characterName, isGuessed) {
+            const cards = charactersGrid.querySelectorAll('.character-card');
+            cards.forEach(card => {
+                if (card.querySelector('p').textContent === characterName) {
+                    if (isGuessed) {
+                        card.classList.add('guessed');
+                    } else {
+                        card.classList.remove('guessed');
+                    }
+                }
+            });
+        }
+
+        // Обработчики событий
+        guessButton.addEventListener('click', checkGuess);
+        
+        guessInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkGuess();
+            }
+        });
+        
+        nextButton.addEventListener('click', function() {
+            selectRandomCharacter();
+        });
+        
+
+        // Запуск игры
+        initGame();
+        // Получаем ссылки на аудио-элементы
+const backgroundMusic = document.getElementById('backgroundMusic');
+const correctSound = document.getElementById('correctSound');
+const wrongSound = document.getElementById('wrongSound');
+
+// Функция для запуска фоновой музыки (обычно после действия пользователя)
+function startBackgroundMusic() {
+    // Устанавливаем громкость (от 0.0 до 1.0)
+    backgroundMusic.volume = 0.3;
+    
+    // Пытаемся воспроизвести
+    backgroundMusic.play().catch(error => {
+        console.log("Автовоспроизведение заблокировано. Нужно взаимодействие с пользователем.");
+    });
+}
+
+// Функция для паузы фоновой музыки
+function pauseBackgroundMusic() {
+    backgroundMusic.pause();
+}
+
+// Функция для звука правильного ответа
+function playCorrectSound() {
+    // Сбрасываем звук на начало, если он уже играет
+    correctSound.currentTime = 0;
+    // Устанавливаем громкость
+    correctSound.volume = 0.5;
+    // Воспроизводим
+    correctSound.play();
+}
+
+// Функция для звука неправильного ответа
+function playWrongSound() {
+    // Сбрасываем звук на начало, если он уже играет
+    wrongSound.currentTime = 0;
+    // Устанавливаем громкость
+    wrongSound.volume = 0.5;
+    // Воспроизводим
+    wrongSound.play();
+}
+
+// Дополнительно: функция для включения/выключения фоновой музыки
+function toggleBackgroundMusic() {
+    if (backgroundMusic.paused) {
+        backgroundMusic.play();
+    } else {
+        backgroundMusic.pause();
+    }
+}
+
+// Важно: Автовоспроизведение аудио обычно требует взаимодействия с пользователем
+// Запускаем фоновую музыку при первом клике по странице
+document.addEventListener('click', function() {
+    if (backgroundMusic.paused) {
+        startBackgroundMusic();
+    }
+}, { once: true }); // { once: true } означает, что событие сработает только один раз
+// Получаем элементы управления громкостью
+const volumeSlider = document.getElementById('volumeSlider');
+const volumeValue = document.getElementById('volumeValue');
+const volumeToggle = document.getElementById('volumeToggle');
+const volumeIcon = volumeToggle.querySelector('.volume-icon');
+
+// Функция для обновления громкости
+function updateBackgroundVolume() {
+    const volume = parseFloat(volumeSlider.value);
+    
+    // Устанавливаем громкость фоновой музыки
+    backgroundMusic.volume = volume;
+    
+    // Обновляем отображение значения
+    const percentage = Math.round(volume * 100);
+    volumeValue.textContent = `${percentage}%`;
+    
+    // Обновляем иконку в зависимости от громкости
+    updateVolumeIcon(volume);
+    
+    // Сохраняем значение громкости в локальное хранилище
+    localStorage.setItem('backgroundMusicVolume', volume);
+}
+
+// Функция для обновления иконки громкости
+function updateVolumeIcon(volume) {
+    if (volume === 0) {
+        volumeIcon.textContent = '🔇'; // Выключен
+    } else if (volume < 0.3) {
+        volumeIcon.textContent = '🔈'; // Тихий
+    } else if (volume < 0.7) {
+        volumeIcon.textContent = '🔉'; // Средний
+    } else {
+        volumeIcon.textContent = '🔊'; // Громкий
+    }
+}
+
+// Функция для включения/выключения звука
+function toggleMute() {
+    if (backgroundMusic.volume > 0) {
+        // Сохраняем текущую громкость перед выключением
+        volumeSlider.dataset.lastVolume = backgroundMusic.volume;
+        
+        // Устанавливаем громкость на 0
+        backgroundMusic.volume = 0;
+        volumeSlider.value = 0;
+        
+        // Обновляем отображение
+        updateVolumeIcon(0);
+        volumeValue.textContent = '0%';
+    } else {
+        // Восстанавливаем предыдущую громкость
+        const lastVolume = volumeSlider.dataset.lastVolume || 0.3;
+        backgroundMusic.volume = parseFloat(lastVolume);
+        volumeSlider.value = lastVolume;
+        
+        // Обновляем отображение
+        updateBackgroundVolume();
+    }
+}
+
+// Загружаем сохраненную громкость из локального хранилища
+function loadSavedVolume() {
+    const savedVolume = localStorage.getItem('backgroundMusicVolume');
+    
+    if (savedVolume !== null) {
+        const volume = parseFloat(savedVolume);
+        backgroundMusic.volume = volume;
+        volumeSlider.value = volume;
+        updateBackgroundVolume();
+    }
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Загружаем сохраненные настройки громкости
+    loadSavedVolume();
+    
+    // Обновляем иконку при загрузке
+    updateVolumeIcon(backgroundMusic.volume);
+    
+    // Обработчик изменения ползунка
+    volumeSlider.addEventListener('input', updateBackgroundVolume);
+    
+    // Обработчик клика по кнопке
+    volumeToggle.addEventListener('click', toggleMute);
+    
+    // Плавное изменение громкости при перетаскивании
+    volumeSlider.addEventListener('change', function() {
+        // Можно добавить дополнительную логику при окончании изменения
+        console.log('Громкость установлена на:', backgroundMusic.volume);
+    });
+    
+    // Обновляем фон ползунка в реальном времени
+    volumeSlider.addEventListener('input', function() {
+        const value = (this.value - this.min) / (this.max - this.min) * 100;
+        this.style.background = `linear-gradient(to right, #4a90e2 ${value}%, #ddd ${value}%)`;
+    });
+    
+    // Инициализируем градиент ползунка
+    const initialValue = (volumeSlider.value - volumeSlider.min) / (volumeSlider.max - volumeSlider.min) * 100;
+    volumeSlider.style.background = `linear-gradient(to right, #4a90e2 ${initialValue}%, #ddd ${initialValue}%)`;
+});
+
+
+
+
+
+
+
+        
+    </script>
+</body>
+</html>
